@@ -1,4 +1,4 @@
-/*
+/******************************************************************************
    Microduino_开源条码刷卡音乐播放器示例程序
    套件WIKI地址:https://wiki.microduino.cn/index.php/%E5%BC%80%E6%BA%90%E6%9D%A1%E7%A0%81%E5%88%B7%E5%8D%A1%E9%9F%B3%E4%B9%90%E6%92%AD%E6%94%BE%E5%99%A8/zh
    使用Microduino_AudioPro、Microduino_SD模块、Sensor Joystick（摇杆）/Sensor-Line Finder（灰度）传感器、OLED屏等，详细清单见维基界面
@@ -7,9 +7,10 @@
    *注意：请在开机前在A0口接入Sensor Joystick（摇杆）传感器或Sensor-Line Finder（灰度）传感器
           如果接入了Sensor Joystick传感器，可用摇杆控制音乐播放，
           如果接入了灰度传感器，可通过刷条码卡来切歌
-   
+          
+********************************************************************************   
    更新时间：2017-08-04
-*/
+********************************************************************************/
 
 #include <Microduino_Key.h>      //按键库
 #include <Microduino_AudioPro.h> //AudioPro库
@@ -43,7 +44,7 @@ bool controlMode;   //音乐播放的控制模式，若为1，摇杆控制音乐
 
 //**********播放第num号音乐
 void playNum(uint8_t num) {
-  if (!musicPlayer.paused() || !musicPlayer.stopped()) {
+  if (!musicPlayer.stopped()) {
     musicPlayer.stopPlaying();  //必要，否则SD类得不到关闭，内存溢出
   }
   musicName = musicPlayer.getMusicName(num);
