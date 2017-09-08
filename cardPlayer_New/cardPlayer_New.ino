@@ -2,7 +2,6 @@
    Microduino_开源条码刷卡音乐播放器示例程序
    套件WIKI地址:https://wiki.microduino.cn/index.php/%E5%BC%80%E6%BA%90%E6%9D%A1%E7%A0%81%E5%88%B7%E5%8D%A1%E9%9F%B3%E4%B9%90%E6%92%AD%E6%94%BE%E5%99%A8/zh
    使用Microduino_AudioPro、Microduino_SD模块、Sensor Joystick（摇杆）/Sensor-Line Finder（灰度）传感器、OLED屏等，详细清单见维基界面
-   本例程适配新版 Arduino IDE 1.6.9 for Microduino
 
    *注意：请在开机前在A0口接入Sensor Joystick（摇杆）传感器或Sensor-Line Finder（灰度）传感器
           如果接入了Sensor Joystick传感器，可用摇杆控制音乐播放，
@@ -44,17 +43,23 @@ bool controlMode;   //音乐播放的控制模式，若为1，摇杆控制音乐
 
 //**********播放第num号音乐
 void playNum(uint8_t num) {
+  if (num > musicPlayer.getMusicNum() - 1) {
+    return;
+  }
+
   if (!musicPlayer.stopped()) {
     musicPlayer.stopPlaying();  //必要，否则SD类得不到关闭，内存溢出
   }
-  musicName = musicPlayer.getMusicName(num);
+  musicPlayer.flushCancel(both);  //清缓存，播放MIDI等格式文件时必要
+
+  String _name = musicPlayer.getMusicName(num);
   Serial.print(F("Playing:"));
-  if (!musicPlayer.playMP3(musicName)) {
+  if (!musicPlayer.playMP3(_name)) {
     Serial.println(F("ERROR"));
   }
   else {
     Serial.print(F("OK \t File: "));
-    Serial.println(musicName);
+    Serial.println(_name);
   }
 }
 
@@ -112,7 +117,7 @@ void setup() {
 
   //**********初始音量设置
   musicVol = 16;   //设置初始音量
-  setVol = map(musicVol, 0, 20, 127, 0); //将用户设置的音量映射到实际设置的音量范围
+  setVol = map(musicVol, 0, 20, 0, 127); //将用户设置的音量映射到实际设置的音量范围
   musicPlayer.setVolume(setVol, setVol); //设置音量
   Serial.print("Volume:");   //串口打印信息
   Serial.println(musicVol);  //串口打印用户设置的音量值
@@ -142,11 +147,10 @@ void loop() {
           if (musicVol > 20) {
             musicVol = 20;
           }
-          setVol = map(musicVol, 0, 20, 127, 1);
+          setVol = map(musicVol, 0, 20, 0, 127);
           musicPlayer.setVolume(setVol, setVol);
           Serial.print(F("Volume changed to:"));
-          Serial.print(musicVol);
-          Serial.println(F("[dB]"));
+          Serial.println(musicVol);
         }
         break;
       case LONG_PRESS: { //长按，音量不断增大
@@ -154,11 +158,10 @@ void loop() {
           if (musicVol > 20) {
             musicVol = 20;
           }
-          setVol = map(musicVol, 0, 20, 127, 1);
+          setVol = map(musicVol, 0, 20, 0, 127);
           musicPlayer.setVolume(setVol, setVol);
           Serial.print(F("Volume changed to:"));
-          Serial.print(musicVol);
-          Serial.println(F("[dB]"));
+          Serial.println(musicVol);
           delay(100);
           break;
         }
@@ -170,11 +173,10 @@ void loop() {
           if (musicVol < 1) {
             musicVol = 0;
           }
-          setVol = map(musicVol, 0, 20, 127, 1);
+          setVol = map(musicVol, 0, 20, 0, 127);
           musicPlayer.setVolume(setVol, setVol);
           Serial.print(F("Volume changed to:"));
-          Serial.print(musicVol);
-          Serial.println(F("[dB]"));
+          Serial.println(musicVol);
         }
         break;
       case LONG_PRESS:  //长按，音量不断减小
@@ -182,12 +184,10 @@ void loop() {
         if (musicVol < 1) {
           musicVol = 0;
         }
-        setVol = map(musicVol, 0, 20, 127, 1);
+        setVol = map(musicVol, 0, 20, 0, 127);
         musicPlayer.setVolume(setVol, setVol);
         Serial.print(F("Volume changed to:"));
-        Serial.print(musicVol);
-        Serial.println(F("[dB]"));
-
+        Serial.println(musicVol);
         delay(100);
         break;
     }
